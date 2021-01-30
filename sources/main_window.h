@@ -28,17 +28,20 @@ public:
 
 public slots:
     void openProject            (QString project);
-    void loadFile               (QString path);
+    void loadChapter            (int number);
     void addParagrapher         ();
+    void addChapter             ();
     void insertParagrapher      (ParagrapherWidget * widget);
     void removeParagrapher      (ParagrapherWidget * widget);
     void quickSave              ();
     void save                   (QString title);
     void countOccurences        ();
     void displayOccurences      ();
+    void changeCurrentChapter   (int number);
 
 private:
     void connectParagrapher     (ParagrapherWidget * widget);
+    void clearAllParagrapher   ();
 
     QVBoxLayout *               _dynamic_paragraph_lt;
     QList<ParagrapherWidget *>  _paragraphers;
@@ -53,7 +56,8 @@ private:
 
     bool                        _text_changed = false;
     QTimer                      _timer;
-    QTimer                      _timer_update;
+
+    int                         _current_chapter = 1;
 
     QMap<QString, int>          _occurences;
 };

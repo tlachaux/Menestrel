@@ -27,7 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
      * -------------------------------- */
 
     this->setMinimumSize    (QSize(1000, 800));
-    this->setStyleSheet     ("border: 0px; background-color: rgb(29, 47, 55); color: rgb(151, 170, 182); font-size: 16px");
+    this->setStyleSheet     ("border: 0px; background-color: rgb(29, 47, 55); \
+                            color: rgb(151, 170, 182); font-size: 16px");
 
     /* -----------------------------------
      *  Central layout
@@ -102,13 +103,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(button, &QPushButton::clicked, this, [this]()
     {
-        auto new_button = new QPushButton("Chapter " + QString::number(_chapters.size() + 1));
-
-        new_button->setFixedHeight(60);
-        _dynamic_chapter_lt->insertWidget(_chapters.size(), new_button);
-        _chapters.push_back(new_button);
+        this->addChapter();
+        this->clearAllParagrapher();
+        this->loadChapter(_chapters.size());
+        this->addParagrapher();
+        this->changeCurrentChapter(_chapters.size());
     });
-
     /* -----------------------------------
      *  Chapter menu widget
      * -------------------------------- */
@@ -202,7 +202,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    this->save("last_version");
+    this->save("chapter_" + QString::number(_current_chapter) + "/last_content");
 }
 
 /**
@@ -227,16 +227,39 @@ void MainWindow::openProject(QString project)
 
     if (!_project.exists()) QDir().mkdir(_home.path() + "/" + project);
 
-    this->loadFile(_project.path() + "/last_version");
+    if (!QDir(_project.path() + "/chapter_1/").exists())
+    {
+        this->addChapter();
+        this->loadChapter(1);
+        this->addParagrapher();
+        _project.mkdir("chapter_1");
+    }
+    else
+    {
+        int i = 1;
+
+        while (QDir(_project.path() + "/chapter_" + QString::number(i) + "/").exists())
+        {
+            this->addChapter();
+            ++i;
+        }
+
+        this->loadChapter(i - 1);
+        this->addParagrapher();
+
+        this->changeCurrentChapter(i - 1);
+    }
 }
 
 /**
  * @brief MainWindow::loadFile
  * @param path
  */
-void MainWindow::loadFile(QString path)
+void MainWindow::loadChapter(int number)
 {
-    QFile readFile(path);
+    QString chapter_path =  + "chapter_" + QString::number(number);
+
+    QFile readFile(_project.path() + "/" + chapter_path + "/last_content");
 
     if(readFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -271,8 +294,6 @@ void MainWindow::loadFile(QString path)
 
         readFile.close();
     }
-
-    if (_paragraphers.isEmpty()) this->addParagrapher();
 }
 
 /**
@@ -286,6 +307,36 @@ void MainWindow::addParagrapher()
     _dynamic_paragraph_lt->addWidget(paragrapher);
 
     this->connectParagrapher(paragrapher);
+}
+
+/**
+ * @brief MainWindow::addChapter
+ */
+void MainWindow::addChapter()
+{
+    int number = _chapters.size() + 1;
+
+    auto new_button = new QPushButton("Chapter " + QString::number(number));
+
+    new_button->setFixedHeight(60);
+
+    _dynamic_chapter_lt->insertWidget(_chapters.size(), new_button);
+    _chapters.push_back(new_button);
+
+    connect(new_button, &QPushButton::clicked, this, [this, number]()
+    {
+        this->clearAllParagrapher();
+        this->loadChapter(number);
+        this->addParagrapher();
+        this->changeCurrentChapter(number);
+    });
+
+    QString chapter_path =  + "chapter_" + QString::number(number);
+
+    if (!QDir(_project.path() + "/" + chapter_path).exists())
+    {
+        _project.mkdir(chapter_path);
+    }
 }
 
 /**
@@ -329,16 +380,17 @@ void MainWindow::quickSave()
     _timer.start(60000);
     _text_changed = false;
 
-    this->save("quick_save_" + QDateTime::currentDateTime().toString());
+    this->save("chapter_" + QString::number(_current_chapter)
+              + "/quick_save_" + QDateTime::currentDateTime().toString());
 }
 
 /**
  * @brief MainWindow::save
  * @param title
  */
-void MainWindow::save(QString title)
+void MainWindow::save(QString path)
 {
-    QFile save_file(_project.path() + "/" + title);
+    QFile save_file(_project.path() + "/" + path);
 
     if(save_file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
     {
@@ -415,6 +467,22 @@ void MainWindow::displayOccurences()
 }
 
 /**
+ * @brief MainWindow::changeCurrentChapter
+ * @param number
+ */
+void MainWindow::changeCurrentChapter(int number)
+{
+    _current_chapter = number;
+
+    for (auto chapter : _chapters)
+    {
+        chapter->setStyleSheet("");
+    }
+
+    _chapters[number - 1]->setStyleSheet("background-color: rgb(54, 72, 80)");
+}
+
+/**
  * @brief MainWindow::connectParagrapher
  * @param widget
  */
@@ -435,6 +503,19 @@ void MainWindow::connectParagrapher(ParagrapherWidget * widget)
         _text_changed = true;
         widget->updateStats();
     });
+}
+
+void MainWindow::clearAllParagrapher()
+{
+    this->save("chapter_" + QString::number(_current_chapter) + "/last_content");
+
+    for (auto paragrapher : _paragraphers)
+    {
+        _dynamic_paragraph_lt->removeWidget(paragrapher);
+        delete paragrapher;
+    }
+
+    _paragraphers.clear();
 }
 
 
