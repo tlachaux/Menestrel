@@ -14,99 +14,139 @@ MainWindow::MainWindow(QWidget *parent)
     , _dynamic_paragraph_lt (new QVBoxLayout)
     , _dynamic_chapter_lt   (new QVBoxLayout)
 {
-    // Directory -------------
+    /* -----------------------------------
+     *  Directory
+     * -------------------------------- */
 
     _home = QDir(QDir::homePath() + "/Menestrel");
 
     if (!_home.exists()) QDir().mkdir(QDir::homePath() + "/Menestrel");
 
-    // Window -------------
+    /* -----------------------------------
+     *  Window
+     * -------------------------------- */
 
-    this->setMinimumSize(QSize(1000, 800));
-    this->setStyleSheet("border: 0px; background-color: rgb(29, 47, 55); color: rgb(151, 170, 182); font-size: 16px");
+    this->setMinimumSize    (QSize(1000, 800));
+    this->setStyleSheet     ("border: 0px; background-color: rgb(29, 47, 55); color: rgb(151, 170, 182); font-size: 16px");
 
-    // Central widget -------------
+    /* -----------------------------------
+     *  Central layout
+     * -------------------------------- */
 
     auto lt = new QGridLayout;
-    lt->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
-    lt->setContentsMargins(0, 20, 0, 0);
+
+    lt->setAlignment        (Qt::AlignHCenter | Qt::AlignTop);
+    lt->setContentsMargins  (0, 20, 0, 0);
+
+    /* -----------------------------------
+     *  Central widget
+     * -------------------------------- */
 
     auto central_widget = new QWidget;
+
     central_widget->setLayout(lt);
 
-    auto scroll_widget = new QScrollArea;
-    scroll_widget->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-    scroll_widget->setWidget(central_widget);
-    scroll_widget->setWidgetResizable(true);
-    scroll_widget->setStyleSheet("QScrollBar::sub-line:vertical {border:0px;}\
-                                  QScrollBar::add-line:vertical {border:0px;}\
-                                  QScrollBar::handle::vertical {border-radius:5px ; background-color:rgb(160, 160, 160)}");
+    /* -----------------------------------
+     *  Scroll area
+     * -------------------------------- */
 
-    this->setCentralWidget(scroll_widget);
+    auto scroll_area = new QScrollArea;
 
-    // Font
+    scroll_area->setVerticalScrollBarPolicy ( Qt::ScrollBarAlwaysOn );
+    scroll_area->setWidget                  (central_widget);
+    scroll_area->setWidgetResizable         (true);
+    scroll_area->setStyleSheet              ("QScrollBar::sub-line:vertical {border:0px;}\
+                                              QScrollBar::add-line:vertical {border:0px;}\
+                                              QScrollBar::handle::vertical {border-radius:5px;\
+                                              background-color:rgb(160, 160, 160)}");
+
+    this->setCentralWidget(scroll_area);
+
+    /* -----------------------------------
+     *  Font
+     * -------------------------------- */
 
     int id = QFontDatabase::addApplicationFont("../fonts/AppleGaramond.ttf");
     _font  = QFont(QFontDatabase::applicationFontFamilies(id).at(0));
 
-    // Title label -------------
+    /* -----------------------------------
+     *  Novel title widget
+     * -------------------------------- */
 
-    _project_title_wgt = new TextWidget(_font);
-    lt->addWidget(_project_title_wgt, 0, 2, 1, 4);
+    _novel_title_wgt = new TextWidget(_font);
 
-    _project_title_wgt->setText("...");
-    _project_title_wgt->setStyleSheet("font-size: 50px");
-    _project_title_wgt->setFixedWidth(880);
+    _novel_title_wgt->setText       ("...");
+    _novel_title_wgt->setStyleSheet ("font-size: 50px");
+    _novel_title_wgt->setFixedWidth (880);
 
-    connect(_project_title_wgt, &TextWidget::textChanged, this, [this]() {_text_changed = true;});
+    lt->addWidget(_novel_title_wgt, 0, 2, 1, 4);
 
-    // Chapter view -------------
+    connect(_novel_title_wgt, &TextWidget::textChanged, this, [this]() {_text_changed = true;});
 
-    _dynamic_chapter_lt->setAlignment(Qt::AlignTop);
-    _dynamic_chapter_lt->setContentsMargins(0, 0, 0, 0);
+    /* -----------------------------------
+     *  Chapter dynamic layout
+     * -------------------------------- */
+
+    _dynamic_chapter_lt->setAlignment       (Qt::AlignTop);
+    _dynamic_chapter_lt->setContentsMargins (0, 0, 0, 0);
+
+    /* -----------------------------------
+     *  Chapter add button
+     * -------------------------------- */
 
     auto button = new QPushButton("+");
-    button->setFixedHeight(40);
-    //button->setStyleSheet("QPushButton {font-size: 20px; background-color : rgb(44, 62, 70); border-radius: 10px}\
-                          QPushButton:pressed {font-size: 20px; background-color: rgb(54, 72, 80)}\
-                          QPushButton:hover {font-size: 25px; color: rgb(161, 180, 192)}\
-                          QLabel {color : rgb(151, 170, 182); border: 0px solid rgb(151, 170, 182);\
-                          border-radius: 5px; font-size: 14px;}");
 
-    connect(button, &QPushButton::clicked, this, [this](){
-        auto new_button = new QPushButton("Chapter " + QString::number(_chapter_counter));
-        new_button->setFixedHeight(60);
-        _dynamic_chapter_lt->insertWidget(_chapters.size(), new_button);
-        _chapters.push_back(new_button);
-        _chapter_counter++;
-    });
+    button->setFixedHeight(40);
 
     _dynamic_chapter_lt->addWidget(button);
 
+    connect(button, &QPushButton::clicked, this, [this]()
+    {
+        auto new_button = new QPushButton("Chapter " + QString::number(_chapters.size() + 1));
+
+        new_button->setFixedHeight(60);
+        _dynamic_chapter_lt->insertWidget(_chapters.size(), new_button);
+        _chapters.push_back(new_button);
+    });
+
+    /* -----------------------------------
+     *  Chapter menu widget
+     * -------------------------------- */
+
     auto chapter_wgt = new QWidget;
 
-    chapter_wgt->setLayout(_dynamic_chapter_lt);
-    chapter_wgt->setStyleSheet("QPushButton {font-size: 20px; background-color : rgb(14, 32, 40); border-radius: 10px}\
-                               QPushButton:pressed {font-size: 20px; background-color: rgb(04, 12, 30)}\
-                               QPushButton:hover {font-size: 25px; color: rgb(161, 180, 192)}\
-                               QLabel {color : rgb(151, 170, 182); border: 0px solid rgb(151, 170, 182);\
-                               border-radius: 5px; font-size: 14px;}");
-    chapter_wgt->setFixedWidth(200);
+    chapter_wgt->setLayout      (_dynamic_chapter_lt);
+    chapter_wgt->setStyleSheet  ("QPushButton {font-size: 20px; background-color : rgb(14, 32, 40); border-radius: 10px}\
+                                  QPushButton:pressed {font-size: 20px; background-color: rgb(04, 12, 30)}\
+                                  QPushButton:hover {font-size: 25px; color: rgb(161, 180, 192)}\
+                                  QLabel {color : rgb(151, 170, 182); border: 0px solid rgb(151, 170, 182);\
+                                  border-radius: 5px; font-size: 14px;}");
+    chapter_wgt->setFixedWidth  (200);
 
     lt->addWidget(chapter_wgt, 1, 0, 1, 1);
 
-    // Paragraph view -------------
+    /* -----------------------------------
+     *  Paragraph dynamic layout
+     * -------------------------------- */
 
     _dynamic_paragraph_lt->setAlignment(Qt::AlignTop);
     _dynamic_paragraph_lt->setContentsMargins(0, 0, 0, 0);
 
-    auto paragraph_wgt = new QWidget;
+    /* -----------------------------------
+     *  Paragraphs widget
+     * -------------------------------- */
 
-    paragraph_wgt->setLayout(_dynamic_paragraph_lt);
-    paragraph_wgt->setStyleSheet("background-color: rgb(24, 42, 50); font-size: 18px");
-    paragraph_wgt->setFixedWidth(880);
+    auto paragraphs_wgt = new QWidget;
 
-    lt->addWidget(paragraph_wgt, 1, 2, 1, 1);
+    paragraphs_wgt->setLayout       (_dynamic_paragraph_lt);
+    paragraphs_wgt->setStyleSheet   ("background-color: rgb(24, 42, 50); font-size: 18px");
+    paragraphs_wgt->setFixedWidth   (880);
+
+    lt->addWidget(paragraphs_wgt, 1, 2, 1, 1);
+
+    /* -----------------------------------
+     *  Auto save
+     * -------------------------------- */
 
     connect(&_timer, &QTimer::timeout, this, [this]()
     {
@@ -115,8 +155,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     _timer.start(60000);
 
+    /* -----------------------------------
+     *  Occurences counter (Ctrl + R)
+     * -------------------------------- */
+
     QAction* refresh_occ_shortcut = new QAction(this);
+
     refresh_occ_shortcut->setShortcut(QKeySequence("Ctrl+R"));
+
+    this->addAction(refresh_occ_shortcut);
 
     connect(refresh_occ_shortcut, &QAction::triggered, this, [this]()
     {
@@ -124,10 +171,15 @@ MainWindow::MainWindow(QWidget *parent)
         this->displayOccurences();
     });
 
-    this->addAction(refresh_occ_shortcut);
+    /* -----------------------------------
+     *  Orthograph checker (Ctrl + E)
+     * -------------------------------- */
 
     QAction* refresh_errors_shortcut = new QAction(this);
+
     refresh_errors_shortcut->setShortcut(QKeySequence("Ctrl+E"));
+
+    this->addAction(refresh_errors_shortcut);
 
     connect(refresh_errors_shortcut, &QAction::triggered, this, [this]()
     {
@@ -146,8 +198,6 @@ MainWindow::MainWindow(QWidget *parent)
 
         std::cout << "Letters : " << counter << std::endl;
     });
-
-    this->addAction(refresh_errors_shortcut);
 }
 
 MainWindow::~MainWindow()
@@ -155,6 +205,10 @@ MainWindow::~MainWindow()
     this->save("last_version");
 }
 
+/**
+ * @brief MainWindow::keyPressEvent
+ * @param event
+ */
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
@@ -163,6 +217,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
 }
 
+/**
+ * @brief MainWindow::openProject
+ * @param project
+ */
 void MainWindow::openProject(QString project)
 {
     _project = QDir(_home.path() + "/" + project);
@@ -172,6 +230,10 @@ void MainWindow::openProject(QString project)
     this->loadFile(_project.path() + "/last_version");
 }
 
+/**
+ * @brief MainWindow::loadFile
+ * @param path
+ */
 void MainWindow::loadFile(QString path)
 {
     QFile readFile(path);
@@ -189,8 +251,8 @@ void MainWindow::loadFile(QString path)
 
            if (first_line)
            {
-               _project_title_wgt->setText(line);
-               _project_title_wgt->setTextFormat();
+               _novel_title_wgt->setText(line);
+               _novel_title_wgt->setTextFormat();
                first_line = false;
            }
            else if (line.isEmpty() && !buffer.isEmpty())
@@ -213,6 +275,9 @@ void MainWindow::loadFile(QString path)
     if (_paragraphers.isEmpty()) this->addParagrapher();
 }
 
+/**
+ * @brief MainWindow::addParagrapher
+ */
 void MainWindow::addParagrapher()
 {
     auto paragrapher = new ParagrapherWidget(_font);
@@ -223,6 +288,10 @@ void MainWindow::addParagrapher()
     this->connectParagrapher(paragrapher);
 }
 
+/**
+ * @brief MainWindow::insertParagrapher
+ * @param widget
+ */
 void MainWindow::insertParagrapher(ParagrapherWidget * widget)
 {
     auto paragrapher = new ParagrapherWidget(_font);
@@ -239,6 +308,10 @@ void MainWindow::insertParagrapher(ParagrapherWidget * widget)
     this->connectParagrapher(paragrapher);
 }
 
+/**
+ * @brief MainWindow::removeParagrapher
+ * @param widget
+ */
 void MainWindow::removeParagrapher(ParagrapherWidget * widget)
 {
     _dynamic_paragraph_lt->removeWidget(widget);
@@ -246,6 +319,9 @@ void MainWindow::removeParagrapher(ParagrapherWidget * widget)
     delete widget;
 }
 
+/**
+ * @brief MainWindow::quickSave
+ */
 void MainWindow::quickSave()
 {
     if (!_text_changed) return;
@@ -256,6 +332,10 @@ void MainWindow::quickSave()
     this->save("quick_save_" + QDateTime::currentDateTime().toString());
 }
 
+/**
+ * @brief MainWindow::save
+ * @param title
+ */
 void MainWindow::save(QString title)
 {
     QFile save_file(_project.path() + "/" + title);
@@ -264,7 +344,7 @@ void MainWindow::save(QString title)
     {
         QTextStream stream(&save_file);
 
-        stream << _project_title_wgt->toPlainText() << "\n\n";
+        stream << _novel_title_wgt->toPlainText() << "\n\n";
 
         for (auto paragrapher : _paragraphers)
         {
@@ -276,6 +356,9 @@ void MainWindow::save(QString title)
     }
 }
 
+/**
+ * @brief MainWindow::countOccurences
+ */
 void MainWindow::countOccurences()
 {
     QRegExp separator("[(,|'|;| |.|/-)]");
@@ -301,6 +384,9 @@ void MainWindow::countOccurences()
     }
 }
 
+/**
+ * @brief MainWindow::displayOccurences
+ */
 void MainWindow::displayOccurences()
 {
     int sum = 0;
@@ -328,6 +414,10 @@ void MainWindow::displayOccurences()
     std::cout << "Total variety : " << _occurences.size() << std::endl;
 }
 
+/**
+ * @brief MainWindow::connectParagrapher
+ * @param widget
+ */
 void MainWindow::connectParagrapher(ParagrapherWidget * widget)
 {
     connect(widget, &ParagrapherWidget::addParagrapherSignal, this, [this, widget]()

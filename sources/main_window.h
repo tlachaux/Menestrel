@@ -44,7 +44,7 @@ private:
     QList<ParagrapherWidget *>  _paragraphers;
     QVBoxLayout *               _dynamic_chapter_lt;
     QList<QPushButton *>        _chapters;
-    TextWidget *                _project_title_wgt;
+    TextWidget *                _novel_title_wgt;
 
     QDir                        _home;
     QDir                        _project;
@@ -56,7 +56,5 @@ private:
     QTimer                      _timer_update;
 
     QMap<QString, int>          _occurences;
-
-    int                         _chapter_counter = 1;
 };
 #endif // MAINWINDOW_H

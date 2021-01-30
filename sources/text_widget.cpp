@@ -21,7 +21,9 @@ TextWidget::TextWidget(QFont font, QString text)
     emit textChanged();
 }
 
-
+/**
+ * @brief TextWidget::deselectAll
+ */
 void TextWidget::deselectAll()
 {
     QTextCursor c = this->textCursor();
@@ -29,6 +31,9 @@ void TextWidget::deselectAll()
     this->setTextCursor(c);
 }
 
+/**
+ * @brief TextWidget::setTextFormat
+ */
 void TextWidget::setTextFormat()
 {
     this->selectAll();
@@ -37,6 +42,10 @@ void TextWidget::setTextFormat()
     this->deselectAll();
 }
 
+/**
+ * @brief TextWidget::setLineSpacement
+ * @param space
+ */
 void TextWidget::setLineSpacement(int space)
 {
     QTextBlockFormat bf = this->textCursor().blockFormat();
@@ -44,6 +53,11 @@ void TextWidget::setLineSpacement(int space)
     this->textCursor().setBlockFormat(bf);
 }
 
+/**
+ * @brief TextWidget::highlightWord
+ * @param word
+ * @param color
+ */
 void TextWidget::highlightWord(QString word, QColor color)
 {
     QTextCursor cursor(this->document());
@@ -58,6 +72,11 @@ void TextWidget::highlightWord(QString word, QColor color)
     }
 }
 
+/**
+ * @brief TextWidget::underlineWord
+ * @param word
+ * @param color
+ */
 void TextWidget::underlineWord(QString word, QColor color)
 {
     QTextCursor cursor(this->document());
@@ -74,6 +93,9 @@ void TextWidget::underlineWord(QString word, QColor color)
     }
 }
 
+/**
+ * @brief TextWidget::cleanHighligthed
+ */
 void TextWidget::cleanHighligthed()
 {
     for (auto cursor : _highlighted_cursors)
@@ -86,6 +108,9 @@ void TextWidget::cleanHighligthed()
     _highlighted_cursors.clear();
 }
 
+/**
+ * @brief TextWidget::cleanUnderlined
+ */
 void TextWidget::cleanUnderlined()
 {
     for (auto cursor : _underlined_cursors)
@@ -98,6 +123,10 @@ void TextWidget::cleanUnderlined()
     _underlined_cursors.clear();
 }
 
+/**
+ * @brief TextWidget::cleanHighligthedCursor
+ * @param cursor
+ */
 void TextWidget::cleanHighligthedCursor(QTextCursor cursor)
 {
     QTextCharFormat tf = cursor.charFormat();
@@ -105,6 +134,10 @@ void TextWidget::cleanHighligthedCursor(QTextCursor cursor)
     cursor.setCharFormat(tf);
 }
 
+/**
+ * @brief TextWidget::cleanUnderlinedCursor
+ * @param cursor
+ */
 void TextWidget::cleanUnderlinedCursor(QTextCursor cursor)
 {
     QTextCharFormat tf = cursor.charFormat();
@@ -112,6 +145,10 @@ void TextWidget::cleanUnderlinedCursor(QTextCursor cursor)
     cursor.setCharFormat(tf);
 }
 
+/**
+ * @brief TextWidget::countLetters
+ * @return
+ */
 int TextWidget::countLetters()
 {
     QString text = this->toPlainText();

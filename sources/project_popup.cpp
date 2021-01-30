@@ -11,8 +11,10 @@
 
 ProjectPopup::ProjectPopup()
     : _text_line(new QLineEdit)
-{
-    // Window
+{   
+    /* -----------------------------------
+     *  Window
+     * -------------------------------- */
 
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect  screenGeometry = screen->geometry();
@@ -26,7 +28,9 @@ ProjectPopup::ProjectPopup()
     this->setStyleSheet("border: 0px; background-color: rgb(21, 36, 43); color: rgb(151, 170, 182); font-size: 18px");
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
-    // Widgets
+    /* -----------------------------------
+     *  Project label
+     * -------------------------------- */
 
     auto lb = new QLabel("Projet : ");
     auto lt = new QVBoxLayout;
@@ -37,6 +41,10 @@ ProjectPopup::ProjectPopup()
     _text_line->setStyleSheet("background-color: rgb(151, 170, 182); color: rgb(29, 47, 55); font-size: 18px");
 }
 
+/**
+ * @brief ProjectPopup::keyPressEvent
+ * @param e
+ */
 void ProjectPopup::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Return)

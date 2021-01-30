@@ -9,13 +9,22 @@ ParagrapherWidget::ParagrapherWidget(QFont const & font, QString text)
     , _hide_btn     (new QPushButton("^"))
     , _counter_lbl  (new QLabel())
 {
-    // Widget
+    /* -----------------------------------
+     *  This
+     * -------------------------------- */
 
-    this->setStyleSheet("background-color : rgb(44, 62, 70);");
+    this->setStyleSheet ("background-color : rgb(44, 62, 70);");
+    this->setText       (text);
+
+    /* -----------------------------------
+     *  Counter label
+     * -------------------------------- */
 
     _counter_lbl->setContentsMargins(10, 5, 10, 5);
 
-    // Margin
+    /* -----------------------------------
+     *  Margin menu
+     * -------------------------------- */
 
     auto vlt = new QVBoxLayout;
     auto margin = new QWidget;
@@ -35,7 +44,9 @@ ParagrapherWidget::ParagrapherWidget(QFont const & font, QString text)
                           border-radius: 5px; font-size: 14px;}");
 
 
-    // Main layout
+    /* -----------------------------------
+     *  Main layout
+     * -------------------------------- */
 
     auto lt = new QGridLayout;
     lt->setContentsMargins(20, 0, 0, 0);
@@ -45,7 +56,9 @@ ParagrapherWidget::ParagrapherWidget(QFont const & font, QString text)
 
     this->setLayout(lt);
 
-    // Connections
+    /* -----------------------------------
+     *  Buttons
+     * -------------------------------- */
 
     connect(_add_btn, &QPushButton::clicked, this, [this]()
     {
@@ -80,10 +93,12 @@ ParagrapherWidget::ParagrapherWidget(QFont const & font, QString text)
             _text_wgt->setVisible(true);
         }
     });
-
-    this->setText(text);
 }
 
+/**
+ * @brief ParagrapherWidget::setText
+ * @param text
+ */
 void ParagrapherWidget::setText(QString text)
 {
     _text_wgt->setText(text);
@@ -91,11 +106,18 @@ void ParagrapherWidget::setText(QString text)
     //_text_wgt->checkOrthograph();
 }
 
+/**
+ * @brief ParagrapherWidget::text
+ * @return
+ */
 QString ParagrapherWidget::text()
 {
     return _text_wgt->toPlainText();
 }
 
+/**
+ * @brief ParagrapherWidget::format
+ */
 void ParagrapherWidget::format()
 {
     if (!_formated)
@@ -105,12 +127,19 @@ void ParagrapherWidget::format()
     }
 }
 
+/**
+ * @brief ParagrapherWidget::updateOrthograph
+ */
 void ParagrapherWidget::updateOrthograph()
 {
     _text_wgt->cleanUnderlined();
     _text_wgt->checkOrthograph();
 }
 
+/**
+ * @brief ParagrapherWidget::updateStats
+ * @return
+ */
 int ParagrapherWidget::updateStats()
 {
     int counter = _text_wgt->countLetters();
@@ -118,6 +147,10 @@ int ParagrapherWidget::updateStats()
     return counter;
 }
 
+/**
+ * @brief ParagrapherWidget::isModified
+ * @return
+ */
 bool ParagrapherWidget::isModified()
 {
     if (_modified)

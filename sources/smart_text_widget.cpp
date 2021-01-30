@@ -7,6 +7,9 @@ SmartTextWidget::SmartTextWidget(QFont font, QString text)
 
 }
 
+/**
+ * @brief SmartTextWidget::updateErrors
+ */
 void SmartTextWidget::updateErrors()
 {
     for (auto cursor : _underlined_cursors)
@@ -18,6 +21,9 @@ void SmartTextWidget::updateErrors()
     }
 }
 
+/**
+ * @brief SmartTextWidget::checkOrthograph
+ */
 void SmartTextWidget::checkOrthograph()
 {
     if (this->toPlainText().isEmpty()) return;
