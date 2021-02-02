@@ -19,7 +19,7 @@ SOURCES += \
     main.cpp \
     main_window.cpp \
     orthograph_corrector.cpp \
-    paragrapher_widget.cpp \
+    paragraph_widget.cpp \
     project_popup.cpp \
     smart_text_widget.cpp \
     text_widget.cpp
@@ -27,7 +27,7 @@ SOURCES += \
 HEADERS += \
     main_window.h \
     orthograph_corrector.h \
-    paragrapher_widget.h \
+    paragraph_widget.h \
     project_popup.h \
     smart_text_widget.h \
     text_widget.h

@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "paragrapher_widget.h"
+#include "paragraph_widget.h"
 #include "text_widget.h"
 #include "orthograph_corrector.h"
 
@@ -29,10 +29,10 @@ public:
 public slots:
     void openProject            (QString project);
     void loadChapter            (int number);
-    void addParagrapher         ();
+    void addParagraph           (bool locked=true);
     void addChapter             ();
-    void insertParagrapher      (ParagrapherWidget * widget);
-    void removeParagrapher      (ParagrapherWidget * widget);
+    void insertParagraph        (ParagraphWidget * widget);
+    void removeParagraph        (ParagraphWidget * widget);
     void quickSave              ();
     void save                   (QString title);
     void countOccurences        ();
@@ -40,11 +40,11 @@ public slots:
     void changeCurrentChapter   (int number);
 
 private:
-    void connectParagrapher     (ParagrapherWidget * widget);
-    void clearAllParagrapher   ();
+    void connectParagraph       (ParagraphWidget * widget);
+    void clearAllParagraph      ();
 
     QVBoxLayout *               _dynamic_paragraph_lt;
-    QList<ParagrapherWidget *>  _paragraphers;
+    QList<ParagraphWidget *>    _paragraphs;
     QVBoxLayout *               _dynamic_chapter_lt;
     QList<QPushButton *>        _chapters;
     TextWidget *                _novel_title_wgt;

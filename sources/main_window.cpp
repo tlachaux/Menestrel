@@ -104,9 +104,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(button, &QPushButton::clicked, this, [this]()
     {
         this->addChapter();
-        this->clearAllParagrapher();
+        this->clearAllParagraph();
         this->loadChapter(_chapters.size());
-        this->addParagrapher();
+        this->addParagraph();
         this->changeCurrentChapter(_chapters.size());
     });
     /* -----------------------------------
@@ -185,14 +185,14 @@ MainWindow::MainWindow(QWidget *parent)
     {
         int counter = 0;
 
-        for (auto paragrapher : _paragraphers)
+        for (auto paragraph : _paragraphs)
         {
-            counter += paragrapher->updateStats();
+            counter += paragraph->updateStats();
 
-            if (paragrapher->isModified())
+            if (paragraph->isModified())
             {
-                paragrapher->updateOrthograph();
-                paragrapher->format();
+                paragraph->updateOrthograph();
+                paragraph->format();
             }
         }
 
@@ -231,7 +231,7 @@ void MainWindow::openProject(QString project)
     {
         this->addChapter();
         this->loadChapter(1);
-        this->addParagrapher();
+        this->addParagraph(false);
         _project.mkdir("chapter_1");
     }
     else
@@ -245,7 +245,7 @@ void MainWindow::openProject(QString project)
         }
 
         this->loadChapter(i - 1);
-        this->addParagrapher();
+        this->addParagraph(false);
 
         this->changeCurrentChapter(i - 1);
     }
@@ -280,9 +280,9 @@ void MainWindow::loadChapter(int number)
            }
            else if (line.isEmpty() && !buffer.isEmpty())
            {
-               this->addParagrapher();
-               _paragraphers.back()->setText(buffer);
-               _paragraphers.back()->format();
+               this->addParagraph();
+               _paragraphs.back()->setText(buffer);
+               _paragraphs.back()->format();
                buffer = "";
            }
            else
@@ -297,16 +297,16 @@ void MainWindow::loadChapter(int number)
 }
 
 /**
- * @brief MainWindow::addParagrapher
+ * @brief MainWindow::addParagraph
  */
-void MainWindow::addParagrapher()
+void MainWindow::addParagraph(bool locked)
 {
-    auto paragrapher = new ParagrapherWidget(_font);
+    auto paragraph = new ParagraphWidget(_font, "", locked);
 
-    _paragraphers.append(paragrapher);
-    _dynamic_paragraph_lt->addWidget(paragrapher);
+    _paragraphs.append(paragraph);
+    _dynamic_paragraph_lt->addWidget(paragraph);
 
-    this->connectParagrapher(paragrapher);
+    this->connectParagraph(paragraph);
 }
 
 /**
@@ -325,9 +325,9 @@ void MainWindow::addChapter()
 
     connect(new_button, &QPushButton::clicked, this, [this, number]()
     {
-        this->clearAllParagrapher();
+        this->clearAllParagraph();
         this->loadChapter(number);
-        this->addParagrapher();
+        this->addParagraph();
         this->changeCurrentChapter(number);
     });
 
@@ -340,33 +340,39 @@ void MainWindow::addChapter()
 }
 
 /**
- * @brief MainWindow::insertParagrapher
+ * @brief MainWindow::insertParagraph
  * @param widget
  */
-void MainWindow::insertParagrapher(ParagrapherWidget * widget)
+void MainWindow::insertParagraph(ParagraphWidget * widget)
 {
-    auto paragrapher = new ParagrapherWidget(_font);
+    auto paragraph = new ParagraphWidget(_font, "", false);
 
-    for (int i=0; i < _paragraphers.size(); ++i)
+    for (int i=0; i < _paragraphs.size(); ++i)
     {
-        if (_paragraphers[i] == widget)
+        if (_paragraphs[i] == widget)
         {
-            _dynamic_paragraph_lt->insertWidget(i + 1, paragrapher);
-            _paragraphers.insert(i + 1, paragrapher);
+            _dynamic_paragraph_lt->insertWidget(i + 1, paragraph);
+            _paragraphs.insert(i + 1, paragraph);
         }
     }
 
-    this->connectParagrapher(paragrapher);
+    this->connectParagraph(paragraph);
 }
 
 /**
- * @brief MainWindow::removeParagrapher
+ * @brief MainWindow::removeParagraph
  * @param widget
  */
-void MainWindow::removeParagrapher(ParagrapherWidget * widget)
+void MainWindow::removeParagraph(ParagraphWidget * widget)
 {
+    if (!widget->text().isEmpty())
+    {
+        this->save("chapter_" + QString::number(_current_chapter)
+                  + "/paragraph_removed_" + QDateTime::currentDateTime().toString());
+    }
+
     _dynamic_paragraph_lt->removeWidget(widget);
-    _paragraphers.removeOne(widget);
+    _paragraphs.removeOne(widget);
     delete widget;
 }
 
@@ -398,9 +404,9 @@ void MainWindow::save(QString path)
 
         stream << _novel_title_wgt->toPlainText() << "\n\n";
 
-        for (auto paragrapher : _paragraphers)
+        for (auto paragraph : _paragraphs)
         {
-            stream << paragrapher->text() << "\n\n";
+            stream << paragraph->text() << "\n\n";
         }
 
         stream.flush();
@@ -417,9 +423,9 @@ void MainWindow::countOccurences()
 
     _occurences.clear();
 
-    for (auto paragrapher : _paragraphers)
+    for (auto paragraph : _paragraphs)
     {
-        for (auto word : paragrapher->text().split(separator))
+        for (auto word : paragraph->text().split(separator))
         {
             if (word.size() > 2)
             {
@@ -483,39 +489,39 @@ void MainWindow::changeCurrentChapter(int number)
 }
 
 /**
- * @brief MainWindow::connectParagrapher
+ * @brief MainWindow::connectParagraph
  * @param widget
  */
-void MainWindow::connectParagrapher(ParagrapherWidget * widget)
+void MainWindow::connectParagraph(ParagraphWidget * widget)
 {
-    connect(widget, &ParagrapherWidget::addParagrapherSignal, this, [this, widget]()
+    connect(widget, &ParagraphWidget::addParagraphSignal, this, [this, widget]()
     {
-        this->insertParagrapher(widget);
+        this->insertParagraph(widget);
     });
 
-    connect(widget, &ParagrapherWidget::deleteParagrapherSignal, this, [this, widget]()
+    connect(widget, &ParagraphWidget::deleteParagraphSignal, this, [this, widget]()
     {
-        this->removeParagrapher(widget);
+        this->removeParagraph(widget);
     });
 
-    connect(widget, &ParagrapherWidget::updateParagrapherSignal, this, [this, widget]()
+    connect(widget, &ParagraphWidget::updateParagraphSignal, this, [this, widget]()
     {
         _text_changed = true;
         widget->updateStats();
     });
 }
 
-void MainWindow::clearAllParagrapher()
+void MainWindow::clearAllParagraph()
 {
     this->save("chapter_" + QString::number(_current_chapter) + "/last_content");
 
-    for (auto paragrapher : _paragraphers)
+    for (auto paragraph : _paragraphs)
     {
-        _dynamic_paragraph_lt->removeWidget(paragrapher);
-        delete paragrapher;
+        _dynamic_paragraph_lt->removeWidget(paragraph);
+        delete paragraph;
     }
 
-    _paragraphers.clear();
+    _paragraphs.clear();
 }
 
 
