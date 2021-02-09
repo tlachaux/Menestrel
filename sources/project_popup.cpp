@@ -32,7 +32,7 @@ ProjectPopup::ProjectPopup()
      *  Project label
      * -------------------------------- */
 
-    auto lb = new QLabel("Projet : ");
+    auto lb = new QLabel("Project : ");
     auto lt = new QVBoxLayout;
     lt->addWidget(lb);
     lt->addWidget(_text_line);

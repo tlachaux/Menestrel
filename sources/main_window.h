@@ -48,6 +48,8 @@ private:
     QVBoxLayout *               _dynamic_chapter_lt;
     QList<QPushButton *>        _chapters;
     TextWidget *                _novel_title_wgt;
+    TextWidget *                _novel_sub_title_wgt;
+    TextWidget *                _chapter_title_wgt;
 
     QDir                        _home;
     QDir                        _project;

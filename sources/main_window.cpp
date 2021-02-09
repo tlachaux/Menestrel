@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto scroll_area = new QScrollArea;
 
-    scroll_area->setVerticalScrollBarPolicy ( Qt::ScrollBarAlwaysOn );
+    scroll_area->setVerticalScrollBarPolicy (Qt::ScrollBarAlwaysOn);
     scroll_area->setWidget                  (central_widget);
     scroll_area->setWidgetResizable         (true);
     scroll_area->setStyleSheet              ("QScrollBar::sub-line:vertical {border:0px;}\
@@ -85,6 +85,34 @@ MainWindow::MainWindow(QWidget *parent)
     connect(_novel_title_wgt, &TextWidget::textChanged, this, [this]() {_text_changed = true;});
 
     /* -----------------------------------
+     *  Novel sub title widget
+     * -------------------------------- */
+
+    _novel_sub_title_wgt = new TextWidget(_font);
+
+    _novel_sub_title_wgt->setText       ("...");
+    _novel_sub_title_wgt->setStyleSheet ("font-size: 30px");
+    _novel_sub_title_wgt->setFixedWidth (880);
+
+    //lt->addWidget(_novel_sub_title_wgt, 1, 2, 1, 4);
+
+    connect(_novel_sub_title_wgt, &TextWidget::textChanged, this, [this]() {_text_changed = true;});
+
+    /* -----------------------------------
+     *  Chapter title widget
+     * -------------------------------- */
+
+    _chapter_title_wgt = new TextWidget(_font);
+
+    _chapter_title_wgt->setText       ("Chapitre X");
+    _chapter_title_wgt->setStyleSheet ("font-size: 20px");
+    _chapter_title_wgt->setFixedWidth (880);
+
+    //lt->addWidget(_chapter_title_wgt, 2, 2, 1, 4);
+
+    connect(_chapter_title_wgt, &TextWidget::textChanged, this, [this]() {_text_changed = true;});
+
+    /* -----------------------------------
      *  Chapter dynamic layout
      * -------------------------------- */
 
@@ -106,7 +134,7 @@ MainWindow::MainWindow(QWidget *parent)
         this->addChapter();
         this->clearAllParagraph();
         this->loadChapter(_chapters.size());
-        this->addParagraph();
+        this->addParagraph(false);
         this->changeCurrentChapter(_chapters.size());
     });
     /* -----------------------------------

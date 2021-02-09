@@ -104,6 +104,8 @@ ParagraphWidget::ParagraphWidget(QFont const & font, QString text, bool locked)
             _text_wgt->checkOrthograph();
         }
 
+        this->format();
+
         emit updateParagraphSignal();
     });
 
@@ -171,8 +173,8 @@ void ParagraphWidget::format()
 {
     if (!_formated)
     {
-        _text_wgt->setTextFormat();
         _formated = true;
+        _text_wgt->setTextFormat();
     }
 }
 
